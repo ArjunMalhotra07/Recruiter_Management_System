@@ -1,4 +1,4 @@
-package handler
+package models
 
 type Response struct {
 	Message string `json:"greeting"`

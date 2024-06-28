@@ -7,7 +7,7 @@ import (
 
 	// "github.com/ArjunMalhotra07/Recruiter_Management_System.git/handler/"
 
-	"github.com/ArjunMalhotra07/Recruiter_Management_System/handler"
+	"github.com/ArjunMalhotra07/Recruiter_Management_System/models"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 )
@@ -30,7 +30,7 @@ func adminRoutes(router chi.Router) {
 }
 
 func BaseRoute(w http.ResponseWriter, r *http.Request) {
-	response := handler.Response{Message: "pong🤣"}
+	response := models.Response{Message: "pong🤣"}
 
 	// Set the Content-Type header to application/json
 	w.Header().Set("Content-Type", "application/json")
