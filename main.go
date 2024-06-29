@@ -8,7 +8,12 @@ import (
 
 func main() {
 	app := application.New()
-	err := app.StartServer()
+
+	err := app.ConnectTODB()
+	if err != nil {
+		fmt.Println("Can't connect to DB:", err)
+	}
+	err = app.StartServer()
 
 	if err != nil {
 		fmt.Println("failed to start app:", err)
