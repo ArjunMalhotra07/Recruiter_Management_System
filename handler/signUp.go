@@ -1,23 +1,40 @@
 package handler
 
 import (
+	"database/sql"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/ArjunMalhotra07/Recruiter_Management_System/models"
 )
 
-func SignUp(w http.ResponseWriter, r *http.Request) {
+type Env struct {
+	Driver *sql.DB
+}
+
+func (d *Env) SignUp(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response := models.Response{Message: err.Error(), Status: "Error"}
+		SendResponse(w, response)
 		return
 	}
-	fmt.Println(user)
-	fmt.Println("Creating new user")
-	response := models.Response{Message: "Created new user"}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	_, err = d.Driver.Exec(`INSERT INTO 
+	user(Name,Email,Address,UserType,PasswordHash,ProfileHeadline) 
+	VALUES (?,?,?,?,?,?)`,
+		user.Name,
+		user.Email,
+		user.Address,
+		user.Type,
+		user.PasswordHash,
+		user.ProfileHeadline)
+
+	if err != nil {
+		response := models.Response{Message: err.Error(), Status: "Error"}
+		SendResponse(w, response)
+		return
+	}
+	response := models.Response{Message: "Created new user", Status: "Success"}
+	SendResponse(w, response)
 }

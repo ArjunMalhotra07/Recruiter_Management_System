@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/ArjunMalhotra07/Recruiter_Management_System/handler"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -13,8 +14,9 @@ type App struct {
 	driver *sql.DB
 }
 
-func New() *App {
-	return &App{router: AppRoutes(), driver: &sql.DB{}}
+func New(driver *sql.DB) *App {
+	env := &handler.Env{Driver: driver}
+	return &App{router: AppRoutes(env), driver: driver}
 }
 func (a *App) StartServer() error {
 	server := &http.Server{
@@ -27,20 +29,5 @@ func (a *App) StartServer() error {
 	if err != nil {
 		return fmt.Errorf("error %s", err)
 	}
-	return nil
-}
-
-func (a *App) ConnectTODB() error {
-	var err error
-	a.driver, err = sql.Open("mysql", "root:Witcher_Arjun7@tcp(127.0.0.1:3306)/New_DB")
-	if err != nil {
-		return err
-	}
-	defer a.driver.Close()
-	pingErr := a.driver.Ping()
-	if pingErr != nil {
-		return pingErr
-	}
-	fmt.Println("Connected to DB")
 	return nil
 }
