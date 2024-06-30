@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"os/exec"
 
 	"github.com/ArjunMalhotra07/Recruiter_Management_System/models"
 )
@@ -20,9 +21,16 @@ func (d *Env) SignUp(w http.ResponseWriter, r *http.Request) {
 		SendResponse(w, response)
 		return
 	}
+	newUUID, err1 := exec.Command("uuidgen").Output()
+	if err1 != nil {
+		response := models.Response{Message: err1.Error(), Status: "Error"}
+		SendResponse(w, response)
+		return
+	}
 	_, err = d.Driver.Exec(`INSERT INTO 
-	user(Name,Email,Address,UserType,PasswordHash,ProfileHeadline) 
-	VALUES (?,?,?,?,?,?)`,
+	user(uuid, Name,Email,Address,UserType,PasswordHash,ProfileHeadline) 
+	VALUES (?,?,?,?,?,?,?)`,
+		newUUID,
 		user.Name,
 		user.Email,
 		user.Address,

@@ -17,6 +17,7 @@ func AppRoutes(env *handler.Env) *chi.Mux {
 	router.Route("/admin", adminRoutes)
 	router.Route("/", func(r chi.Router) {
 		r.Post("/signup", env.SignUp)
+		r.Post("/login", env.LogIn)
 	})
 	return router
 }
