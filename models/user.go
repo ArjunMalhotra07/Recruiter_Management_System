@@ -1,12 +1,13 @@
 package models
 
 type User struct {
-	Name            string   `json:"name"`
-	Email           string   `json:"email"`
-	PasswordHash    string   `json:"password_hash"`
+	Uuid            string `json:"uuid"`
+	Name            string `json:"name"`
+	Email           string `json:"email"`
+	PasswordHash    string `json:"password_hash"`
 	Type            string `json:"type"`
-	ProfileHeadline string   `json:"profile_headline"`
-	Address         string   `json:"address"`
+	ProfileHeadline string `json:"profile_headline"`
+	Address         string `json:"address"`
 }
 
 // UserType enum

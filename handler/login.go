@@ -16,25 +16,15 @@ func (d *Env) LogIn(w http.ResponseWriter, r *http.Request) {
 		SendResponse(w, response)
 		return
 	}
+	encText, _ := Encrypt(user.PasswordHash, MySecret)
+	fmt.Println(encText)
 	query := `SELECT * FROM user WHERE Email=? AND PasswordHash=?`
 
-	rows, err1 := d.Driver.Query(query, user.Email, user.PasswordHash)
+	row := d.Driver.QueryRow(query, user.Email, encText)
 	var currentUser models.User
-	if rows.Next() {
-		for rows.Next() {
-			if err := rows.Scan(&currentUser.Name, &currentUser.Email, &currentUser.PasswordHash, &currentUser.Type, &currentUser.ProfileHeadline, &currentUser.Address); err != nil {
-				return
-			}
-		}
-		fmt.Println(currentUser)
-	} else {
-		response := models.Response{Message: err1.Error(), Status: "Error"}
-		SendResponse(w, response)
-		return
-	}
-
-	if err1 != nil {
-		response := models.Response{Message: err1.Error(), Status: "Error"}
+	err = row.Scan(&currentUser.Uuid, &currentUser.Name, &currentUser.Email, &currentUser.PasswordHash, &currentUser.Type, &currentUser.ProfileHeadline, &currentUser.Address)
+	if err != nil {
+		response := models.Response{Message: err.Error(), Status: "Error"}
 		SendResponse(w, response)
 		return
 	}
