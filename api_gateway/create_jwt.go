@@ -1,4 +1,4 @@
-package handler
+package apigateway
 
 import (
 	"fmt"
@@ -7,9 +7,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-var secret string = "Witcher_Arjun7"
-
-func createToken(uuid string) (string, error) {
+func CreateToken(uuid string) (string, error) {
 	// Create a new token object
 	token := jwt.New(jwt.SigningMethodHS256)
 
@@ -19,14 +17,14 @@ func createToken(uuid string) (string, error) {
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix() // Token expires in 24 hours
 
 	// Generate encoded token and sign it with a secret
-	tokenString, err := token.SignedString([]byte(secret))
+	tokenString, err := token.SignedString([]byte(Secret))
 	if err != nil {
 		return "", err
 	}
 
 	return tokenString, nil
 }
-func verifyToken(tokenString string, secret string) (*jwt.Token, error) {
+func VerifyToken(tokenString string, secret string) (*jwt.Token, error) {
 	return jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		// Check the signing method
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

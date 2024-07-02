@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	apigateway "github.com/ArjunMalhotra07/Recruiter_Management_System/api_gateway"
 	"github.com/ArjunMalhotra07/Recruiter_Management_System/models"
 	"github.com/dgrijalva/jwt-go"
 )
@@ -17,7 +18,7 @@ func (d *Env) LogIn(w http.ResponseWriter, r *http.Request) {
 		SendResponse(w, response)
 		return
 	}
-	encText, _ := Encrypt(user.PasswordHash, MySecret)
+	encText, _ := apigateway.Encrypt(user.PasswordHash, apigateway.Secret)
 	fmt.Println(encText)
 	query := `SELECT * FROM user WHERE Email=? AND PasswordHash=?`
 
@@ -30,7 +31,7 @@ func (d *Env) LogIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := verifyToken(user.Jwt, secret)
+	token, err := apigateway.VerifyToken(user.Jwt, apigateway.Secret)
 	if err != nil {
 		response := models.Response{Message: err.Error(), Status: "Error"}
 		SendResponse(w, response)
