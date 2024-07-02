@@ -32,7 +32,8 @@ func (d *Env) LogIn(w http.ResponseWriter, r *http.Request) {
 
 	token, err := verifyToken(user.Jwt, secret)
 	if err != nil {
-		fmt.Println("Error verifying token:", err)
+		response := models.Response{Message: err.Error(), Status: "Error"}
+		SendResponse(w, response)
 		return
 	}
 
