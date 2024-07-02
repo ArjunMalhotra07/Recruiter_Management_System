@@ -40,7 +40,7 @@ func (d *Env) SignUp(w http.ResponseWriter, r *http.Request) {
 		user.Name,
 		user.Email,
 		user.Address,
-		user.Type,
+		user.IsAdmin,
 		encText,
 		user.ProfileHeadline)
 
@@ -49,7 +49,14 @@ func (d *Env) SignUp(w http.ResponseWriter, r *http.Request) {
 		SendResponse(w, response)
 		return
 	}
-	response := models.Response{Message: "Created new user", Status: "Success"}
+
+	tokenString, tokenError := createToken(string(newUUID))
+	if tokenError != nil {
+		fmt.Println("error", tokenError)
+	}
+
+	fmt.Println("Token sent", tokenString)
+	response := models.Response{Message: "Created new user", Status: "Success", Jwt: tokenString}
 	SendResponse(w, response)
 }
 

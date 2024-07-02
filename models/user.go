@@ -5,9 +5,10 @@ type User struct {
 	Name            string `json:"name"`
 	Email           string `json:"email"`
 	PasswordHash    string `json:"password_hash"`
-	Type            string `json:"type"`
+	IsAdmin         bool   `json:"is_admin"`
 	ProfileHeadline string `json:"profile_headline"`
 	Address         string `json:"address"`
+	Jwt             string `json:"jwt"`
 }
 
 // UserType enum

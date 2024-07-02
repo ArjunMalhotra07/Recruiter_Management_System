@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/ArjunMalhotra07/Recruiter_Management_System/models"
+	"github.com/dgrijalva/jwt-go"
 )
 
 func (d *Env) LogIn(w http.ResponseWriter, r *http.Request) {
@@ -22,12 +23,24 @@ func (d *Env) LogIn(w http.ResponseWriter, r *http.Request) {
 
 	row := d.Driver.QueryRow(query, user.Email, encText)
 	var currentUser models.User
-	err = row.Scan(&currentUser.Uuid, &currentUser.Name, &currentUser.Email, &currentUser.PasswordHash, &currentUser.Type, &currentUser.ProfileHeadline, &currentUser.Address)
+	err = row.Scan(&currentUser.Uuid, &currentUser.Name, &currentUser.Email, &currentUser.PasswordHash, &currentUser.IsAdmin, &currentUser.ProfileHeadline, &currentUser.Address)
 	if err != nil {
 		response := models.Response{Message: err.Error(), Status: "Error"}
 		SendResponse(w, response)
 		return
 	}
-	response := models.Response{Message: "User Exists", Status: "Success"}
+
+	token, err := verifyToken(user.Jwt, secret)
+	if err != nil {
+		fmt.Println("Error verifying token:", err)
+		return
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		fmt.Println("Claims:", claims)
+	} else {
+		fmt.Println("Invalid token")
+	}
+	response := models.Response{Message: "User Exists", Status: "Success", Jwt: user.Jwt}
 	SendResponse(w, response)
 }
