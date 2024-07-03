@@ -5,10 +5,10 @@ import (
 )
 
 type Job struct {
-	Title             string
-	Description       string
-	PostedOn          time.Time
-	TotalApplications int
-	CompanyName       string
-	PostedBy          User
+	Title             string    `json:"title"`
+	Description       string    `json:"description"`
+	PostedOn          time.Time `json:"posted_on"`
+	TotalApplications int       `json:"total_applications"`
+	CompanyName       string    `json:"company_name"`
+	PostedBy          User      `json:"posted_by"`
 }

@@ -29,7 +29,10 @@ func (d *Env) SignUp(w http.ResponseWriter, r *http.Request) {
 		SendResponse(w, response)
 		return
 	}
-	encText, _ := apigateway.Encrypt(user.PasswordHash, apigateway.Secret)
+	encText, err := apigateway.Encrypt(user.PasswordHash, apigateway.MySecret)
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	_, err = d.Driver.Exec(`INSERT INTO 
 	user(uuid, Name,Email,Address,UserType,PasswordHash,ProfileHeadline) 
@@ -48,7 +51,7 @@ func (d *Env) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokenString, tokenError := apigateway.CreateToken(string(newUUID))
+	tokenString, tokenError := apigateway.CreateToken(string(newUUID), user.IsAdmin)
 	if tokenError != nil {
 		fmt.Println("error", tokenError)
 	}
