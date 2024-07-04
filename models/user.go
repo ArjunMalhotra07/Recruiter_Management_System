@@ -8,7 +8,6 @@ type User struct {
 	IsAdmin         bool   `json:"is_admin"`
 	ProfileHeadline string `json:"profile_headline"`
 	Address         string `json:"address"`
-	Jwt             string `json:"jwt"`
 }
 
 // UserType enum

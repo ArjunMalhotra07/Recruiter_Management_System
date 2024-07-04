@@ -68,8 +68,31 @@ func (d *Env) GetJobDetails(w http.ResponseWriter, r *http.Request) {
 	SendResponse(w, response)
 }
 func (d *Env) GetAllApplicants(w http.ResponseWriter, r *http.Request) {
-	response := models.Response{Message: "All users data", Status: "Success"}
-	SendResponse(w, response)
+	//! Getting claims through JWT Token
+	claims := r.Context().Value("claims").(jwt.MapClaims)
+	isAdmin := claims["is_admin"].(bool)
+	if !isAdmin {
+		SendResponse(w, models.Response{
+			Message: "Only Admins can get list of all applicants", Status: "Error", Data: ""})
+	} else {
+		rows, err := d.Driver.Query("SELECT Uuid, Name, Email, Address, IsAdmin, ProfileHeadline FROM user")
+		if err != nil {
+			SendResponse(w, models.Response{Message: err.Error(), Status: "Error"})
+			return
+		}
+		defer rows.Close()
+		var applicants []models.User
+		for rows.Next() {
+			var applicant models.User
+			if err := rows.Scan(&applicant.Uuid, &applicant.Name, &applicant.Email, &applicant.Address, &applicant.IsAdmin, &applicant.ProfileHeadline); err != nil {
+				SendResponse(w, models.Response{Message: err.Error(), Status: "Error"})
+				return
+			}
+			applicants = append(applicants, applicant)
+		}
+		response := models.Response{Message: "All users data", Status: "Success", Data: applicants}
+		SendResponse(w, response)
+	}
 }
 
 func (d *Env) GetApplicantData(w http.ResponseWriter, r *http.Request) {

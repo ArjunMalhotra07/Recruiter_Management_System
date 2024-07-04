@@ -16,7 +16,7 @@ func JwtVerify(secret string) func(http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authorizationHeader := r.Header.Get("Authorization")
 			if authorizationHeader == "" {
-				response := models.Response{Message: "Missing Authorization header", Status: "Error"}
+				response := models.Response{Message: "Missing Authorization header", Status: "Error", Data: ""}
 				handler.SendResponse(w, response)
 				return
 			}
@@ -24,7 +24,7 @@ func JwtVerify(secret string) func(http.Handler) http.Handler {
 			tokenString := strings.TrimSpace(strings.Replace(authorizationHeader, "Bearer", "", 1))
 			token, err := apigateway.VerifyToken(tokenString, secret)
 			if err != nil {
-				response := models.Response{Message: err.Error(), Status: "Error"}
+				response := models.Response{Message: err.Error(), Status: "Error", Data: ""}
 				handler.SendResponse(w, response)
 				return
 			}
@@ -33,7 +33,7 @@ func JwtVerify(secret string) func(http.Handler) http.Handler {
 				r = r.WithContext(context.WithValue(r.Context(), "claims", claims))
 				next.ServeHTTP(w, r)
 			} else {
-				response := models.Response{Message: "Invalid Token", Status: "Error"}
+				response := models.Response{Message: "Invalid Token", Status: "Error", Data: ""}
 				handler.SendResponse(w, response)
 				return
 			}

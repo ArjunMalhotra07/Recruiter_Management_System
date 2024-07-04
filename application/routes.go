@@ -28,12 +28,11 @@ func AppRoutes(env *handler.Env) *chi.Mux {
 	})
 	return router
 }
-
 func AdminRoutes(router chi.Router, env *handler.Env) {
 	router.With(mymiddleware.JwtVerify(apigateway.Secret)).Post("/job", env.PostJob)
-	router.Get("/job/{job_id}", env.GetJobDetails)
-	router.Get("/applicants", env.GetAllApplicants)
-	router.Get("/applicant/{applicant_id}", env.GetApplicantData)
+	router.With(mymiddleware.JwtVerify(apigateway.Secret)).Get("/job/{job_id}", env.GetJobDetails)
+	router.With(mymiddleware.JwtVerify(apigateway.Secret)).Get("/applicants", env.GetAllApplicants)
+	router.With(mymiddleware.JwtVerify(apigateway.Secret)).Get("/applicant/{applicant_id}", env.GetApplicantData)
 }
 func LoginRoutes(router chi.Router, env *handler.Env) {
 	router.Post("/signup", env.SignUp)

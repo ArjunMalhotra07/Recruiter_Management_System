@@ -7,7 +7,6 @@ import (
 
 	apigateway "github.com/ArjunMalhotra07/Recruiter_Management_System/api_gateway"
 	"github.com/ArjunMalhotra07/Recruiter_Management_System/models"
-	"github.com/dgrijalva/jwt-go"
 )
 
 func (d *Env) LogIn(w http.ResponseWriter, r *http.Request) {
@@ -31,18 +30,6 @@ func (d *Env) LogIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := apigateway.VerifyToken(user.Jwt, apigateway.Secret)
-	if err != nil {
-		response := models.Response{Message: err.Error(), Status: "Error"}
-		SendResponse(w, response)
-		return
-	}
-
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		fmt.Println("Claims:", claims)
-	} else {
-		fmt.Println("Invalid token")
-	}
-	response := models.Response{Message: "User Exists", Status: "Success", Jwt: user.Jwt}
+	response := models.Response{Message: "User Exists", Status: "Success"}
 	SendResponse(w, response)
 }
