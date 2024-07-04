@@ -35,7 +35,7 @@ func (d *Env) SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_, err = d.Driver.Exec(`INSERT INTO 
-	user(uuid, Name,Email,Address,UserType,PasswordHash,ProfileHeadline) 
+	user(uuid, Name,Email,Address,IsAdmin,PasswordHash,ProfileHeadline) 
 	VALUES (?,?,?,?,?,?,?)`,
 		newUUID,
 		user.Name,
