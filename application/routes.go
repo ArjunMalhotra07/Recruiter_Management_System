@@ -24,12 +24,20 @@ func AppRoutes(env *handler.Env) *chi.Mux {
 		LoginRoutes(r, env)
 	})
 	router.Route("/jobs", func(r chi.Router) {
+		r.Use(mymiddleware.JwtVerify(apigateway.Secret))
+
 		JobRoutes(r, env)
 	})
 	return router
 }
+func JobRoutes(router chi.Router, env *handler.Env) {
+	router.Get("/", env.GetAllJobs)
+	//! To be implemented
+	router.With(mymiddleware.JwtVerify(apigateway.Secret)).Get("/apply?job_id={job_id}", env.ApplyToJob)
+}
 func AdminRoutes(router chi.Router, env *handler.Env) {
 	router.With(mymiddleware.JwtVerify(apigateway.Secret)).Post("/job", env.PostJob)
+	//! To Be implemented
 	router.With(mymiddleware.JwtVerify(apigateway.Secret)).Get("/job/{job_id}", env.GetJobDetails)
 	router.With(mymiddleware.JwtVerify(apigateway.Secret)).Get("/applicants", env.GetAllApplicants)
 	router.With(mymiddleware.JwtVerify(apigateway.Secret)).Get("/applicant/{applicant_id}", env.GetApplicantData)
@@ -37,10 +45,6 @@ func AdminRoutes(router chi.Router, env *handler.Env) {
 func LoginRoutes(router chi.Router, env *handler.Env) {
 	router.Post("/signup", env.SignUp)
 	router.Post("/login", env.LogIn)
-}
-func JobRoutes(router chi.Router, env *handler.Env) {
-	router.Get("/jobs", env.GetAllJobs)
-	router.Get("/jobs/apply?job_id={job_id}", env.ApplyToJob)
 }
 func DefaultRoute(w http.ResponseWriter, r *http.Request) {
 	response := models.Response{Message: "pong🤣"}
