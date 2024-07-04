@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os/exec"
 	"time"
@@ -74,6 +75,7 @@ func (d *Env) GetAllApplicants(w http.ResponseWriter, r *http.Request) {
 	if !isAdmin {
 		SendResponse(w, models.Response{
 			Message: "Only Admins can get list of all applicants", Status: "Error", Data: ""})
+		return
 	} else {
 		rows, err := d.Driver.Query("SELECT Uuid, Name, Email, Address, IsAdmin, ProfileHeadline FROM user")
 		if err != nil {
@@ -96,6 +98,29 @@ func (d *Env) GetAllApplicants(w http.ResponseWriter, r *http.Request) {
 }
 
 func (d *Env) GetApplicantData(w http.ResponseWriter, r *http.Request) {
-	response := models.Response{Message: "Data of a single user", Status: "Success"}
+	claims := r.Context().Value("claims").(jwt.MapClaims)
+	if !claims["is_admin"].(bool) {
+		SendResponse(w, models.Response{Message: "Admin Users are allowed past here", Status: "Error!", Data: ""})
+		return
+	}
+	applicantID := chi.URLParam(r, "applicant_id")
+	fmt.Println(applicantID)
+	rows, err := d.Driver.Query("SELECT Uuid, Name, Email, Address, IsAdmin, ProfileHeadline FROM user WHERE Uuid = ?", applicantID)
+	if err != nil {
+		SendResponse(w, models.Response{Message: err.Error(), Status: "Error!", Data: ""})
+		return
+	}
+	defer rows.Close()
+	var user models.User
+	if rows.Next() {
+		if err := rows.Scan(&user.Uuid, &user.Name, &user.Email, &user.Address, &user.IsAdmin, &user.ProfileHeadline); err != nil {
+			SendResponse(w, models.Response{Message: err.Error(), Status: "Error"})
+			return
+		}
+	} else {
+		SendResponse(w, models.Response{Message: "No user found with the given ID", Status: "Error", Data: ""})
+		return
+	}
+	response := models.Response{Message: "Data of a single user", Status: "Success", Data: user}
 	SendResponse(w, response)
 }

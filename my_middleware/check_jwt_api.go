@@ -24,7 +24,7 @@ func JwtVerify(secret string) func(http.Handler) http.Handler {
 			tokenString := strings.TrimSpace(strings.Replace(authorizationHeader, "Bearer", "", 1))
 			token, err := apigateway.VerifyToken(tokenString, secret)
 			if err != nil {
-				response := models.Response{Message: err.Error(), Status: "Error", Data: ""}
+				response := models.Response{Message: "Invalid Token", Status: "Error", Data: ""}
 				handler.SendResponse(w, response)
 				return
 			}
