@@ -7,7 +7,7 @@ import (
 )
 
 func (d *Env) GetAllJobs(w http.ResponseWriter, r *http.Request) {
-	rows, err := d.Driver.Query("SELECT * FROM job WHERE Status = 0")
+	rows, err := d.Driver.Query("SELECT * FROM job WHERE Status = ?", false)
 	if err != nil {
 		SendResponse(w, models.Response{Message: err.Error(), Status: "Error"})
 		return
@@ -22,8 +22,13 @@ func (d *Env) GetAllJobs(w http.ResponseWriter, r *http.Request) {
 		}
 		jobs = append(jobs, job)
 	}
-	response := models.Response{Message: "All users data", Status: "Success", Data: jobs}
-	SendResponse(w, response)
+	if len(jobs) != 0 {
+		response := models.Response{Message: "All users data", Status: "Success", Data: jobs}
+		SendResponse(w, response)
+	} else {
+		response := models.Response{Message: "No New Jobs", Status: "Success", Data: []models.Job{}}
+		SendResponse(w, response)
+	}
 }
 
 func (env *Env) ApplyToJob(w http.ResponseWriter, r *http.Request) {
