@@ -28,6 +28,7 @@ func AppRoutes(env *handler.Env) *chi.Mux {
 		r.Use(mymiddleware.JwtVerify(apigateway.Secret))
 		JobRoutes(r, env)
 	})
+	router.With(mymiddleware.JwtVerify(apigateway.Secret)).Post("/uploadResume", env.UploadResume)
 	return router
 }
 func JobRoutes(router chi.Router, env *handler.Env) {
