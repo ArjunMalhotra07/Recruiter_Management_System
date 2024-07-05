@@ -105,15 +105,15 @@ func (d *Env) GetApplicantData(w http.ResponseWriter, r *http.Request) {
 	}
 	applicantID := chi.URLParam(r, "applicant_id")
 	fmt.Println(applicantID)
-	rows, err := d.Driver.Query("SELECT Uuid, Name, Email, Address, IsAdmin, ProfileHeadline FROM user WHERE Uuid = ?", applicantID)
+	rows, err := d.Driver.Query("SELECT * FROM profile WHERE Uuid = ?", applicantID)
 	if err != nil {
 		SendResponse(w, models.Response{Message: err.Error(), Status: "Error!", Data: ""})
 		return
 	}
 	defer rows.Close()
-	var user models.User
+	var user models.Profile
 	if rows.Next() {
-		if err := rows.Scan(&user.Uuid, &user.Name, &user.Email, &user.Address, &user.IsAdmin, &user.ProfileHeadline); err != nil {
+		if err := rows.Scan(&user.Uuid, &user.ResumeFileAddress, &user.Skills, &user.Education, &user.Experience, &user.Name, &user.Email, &user.Phone); err != nil {
 			SendResponse(w, models.Response{Message: err.Error(), Status: "Error"})
 			return
 		}
