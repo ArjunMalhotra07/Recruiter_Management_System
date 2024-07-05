@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"os/exec"
 	"time"
@@ -58,20 +57,7 @@ func (d *Env) ApplyToJob(w http.ResponseWriter, r *http.Request) {
 		SendResponse(w, models.Response{Message: "Job does not exist", Status: "Error"})
 		return
 	}
-	//! Check if the user (UUID) has already applied to this job (jobID)
-	var hasApplied bool
-	err = d.Driver.QueryRow("SELECT EXISTS(SELECT * FROM job_application WHERE JobID = ? AND UserID = ?)", jobID, uuid).Scan(&hasApplied)
-	if err != nil {
-		SendResponse(w, models.Response{Message: "Error checking previous application: " + err.Error(), Status: "Error"})
-		return
-	}
-	if hasApplied {
-		SendResponse(w, models.Response{Message: "You have already applied to this job", Status: "Error"})
-		return
-	} else {
-		fmt.Println("false")
-	}
-	//! Generating new applicationID
+	// ! Generating new applicationID
 	applicationID, err := exec.Command("uuidgen").Output()
 	if err != nil {
 		response := models.Response{Message: err.Error(), Status: "Error"}
@@ -79,8 +65,8 @@ func (d *Env) ApplyToJob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	_, err = d.Driver.Exec(`INSERT INTO 
-	job_application(ApplicationID, JobID,UserID,AppliedOn) 
-	VALUES (?,?,?,?)`,
+job_application(ApplicationID, JobID,UserID,AppliedOn) 
+VALUES (?,?,?,?)`,
 		applicationID,
 		jobID,
 		uuid,
@@ -93,4 +79,5 @@ func (d *Env) ApplyToJob(w http.ResponseWriter, r *http.Request) {
 	}
 	response := models.Response{Message: "Successfully Applied!", Status: "Success"}
 	SendResponse(w, response)
+
 }
