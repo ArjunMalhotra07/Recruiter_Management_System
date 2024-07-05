@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -24,14 +25,12 @@ func (d *Env) UploadResume(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer file.Close()
-	//! Saving resume to a directory
-	// Create a directory to store resume files if it doesn't exist
+	//! Save resume to a directory
 	resumeDir := "./resumes"
 	if err := os.MkdirAll(resumeDir, os.ModePerm); err != nil {
 		SendResponse(w, models.Response{Message: "Error creating resume directory: " + err.Error(), Status: "Error"})
 		return
 	}
-	// Create the file path
 	resumeFilePath := filepath.Join(resumeDir, header.Filename)
 
 	// Create the file on the server
@@ -47,17 +46,18 @@ func (d *Env) UploadResume(w http.ResponseWriter, r *http.Request) {
 		SendResponse(w, models.Response{Message: "Error saving file: " + err.Error(), Status: "Error"})
 		return
 	}
-	// Reopen the saved file for reading
-	outFile, err = os.Open(resumeFilePath)
+
+	// Read the saved file into a byte slice
+	fileContent, err := os.ReadFile(resumeFilePath)
 	if err != nil {
-		SendResponse(w, models.Response{Message: "Error reopening file: " + err.Error(), Status: "Error"})
+		SendResponse(w, models.Response{Message: "Error reading file: " + err.Error(), Status: "Error"})
 		return
 	}
-	defer outFile.Close()
-	//! Api call
+
+	//! API call to resume parser
 	apiKey := "gNiXyflsFu3WNYCz1ZCxdWDb7oQg1Nl1"
 	client := &http.Client{}
-	req, err := http.NewRequest("POST", "https://api.apilayer.com/resume_parser/upload", file)
+	req, err := http.NewRequest("POST", "https://api.apilayer.com/resume_parser/upload", bytes.NewReader(fileContent))
 	if err != nil {
 		SendResponse(w, models.Response{Message: "Error creating request: " + err.Error(), Status: "Error"})
 		return
@@ -72,15 +72,18 @@ func (d *Env) UploadResume(w http.ResponseWriter, r *http.Request) {
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		bodyBytes, _ := io.ReadAll(resp.Body)
-		SendResponse(w, models.Response{Message: "Error from resume parsing API" + string(bodyBytes), Status: "Error"})
+		SendResponse(w, models.Response{Message: "Error from resume parsing API: " + string(bodyBytes), Status: "Error"})
 		return
 	}
+
 	//! Parsing Resume
 	var parsedResume models.Profile
 	if err := json.NewDecoder(resp.Body).Decode(&parsedResume); err != nil {
 		SendResponse(w, models.Response{Message: "Error decoding response: " + err.Error(), Status: "Error"})
 		return
-	} // Extracting and joining Education and Experience names
+	}
+
+	// Extracting and joining Education and Experience names
 	var educationNames []string
 	for _, edu := range parsedResume.Education {
 		educationNames = append(educationNames, edu.Name)
@@ -92,6 +95,8 @@ func (d *Env) UploadResume(w http.ResponseWriter, r *http.Request) {
 		experienceNames = append(experienceNames, exp.Name)
 	}
 	experience := strings.Join(experienceNames, ", ")
+
+	//! Insert into profile table
 	_, err = d.Driver.Exec("INSERT INTO profile (Uuid, Name, Email, Phone, ResumeFileAddress, Skills, Education, Experience) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
 		claims["uuid"], parsedResume.Name, parsedResume.Email, parsedResume.Phone, resumeFilePath, strings.Join(parsedResume.Skills, ", "), education, experience)
 	if err != nil {
