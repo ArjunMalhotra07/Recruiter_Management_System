@@ -56,18 +56,7 @@ func (d *Env) PostJob(w http.ResponseWriter, r *http.Request) {
 		SendResponse(w, response)
 	}
 }
-func (d *Env) GetJobDetails(w http.ResponseWriter, r *http.Request) {
-	jobID := chi.URLParam(r, "job_id")
-	var response models.Response
 
-	if jobID != "" {
-		response = models.Response{
-			Message: "Job ID: " + jobID,
-			Status:  "Success",
-		}
-	}
-	SendResponse(w, response)
-}
 func (d *Env) GetAllApplicants(w http.ResponseWriter, r *http.Request) {
 	//! Getting claims through JWT Token
 	claims := r.Context().Value("claims").(jwt.MapClaims)
