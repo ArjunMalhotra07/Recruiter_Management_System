@@ -1,12 +1,14 @@
 package models
 
 type Profile struct {
-	Education  []Education  `json:"education"`
-	Email      string       `json:"email"`
-	Experience []Experience `json:"experience"`
-	Name       string       `json:"name"`
-	Phone      string       `json:"phone"`
-	Skills     []string     `json:"skills"`
+	Uuid              string `json:"uuid"`
+	Skills            string `json:"skills"`
+	ResumeFileAddress string `json:"resume_file_address"`
+	Education         string `json:"education"`
+	Experience        string `json:"experience"`
+	Name              string `json:"name"`
+	Email             string `json:"email"`
+	Phone             string `json:"phone"`
 }
 
 type Education struct {
@@ -14,6 +16,6 @@ type Education struct {
 }
 
 type Experience struct {
-	Name  string   `json:"name"`
-	Dates []string `json:"dates"`
+	Title        string `json:"title"`
+	Organization string `json:"organization"`
 }

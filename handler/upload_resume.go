@@ -77,7 +77,15 @@ func (d *Env) UploadResume(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//! Parsing Resume
-	var parsedResume models.Profile
+	var parsedResume struct {
+		Name       string              `json:"name"`
+		Email      string              `json:"email"`
+		Phone      string              `json:"phone"`
+		Skills     []string            `json:"skills"`
+		Education  []models.Education  `json:"education"`
+		Experience []models.Experience `json:"experience"`
+	}
+
 	if err := json.NewDecoder(resp.Body).Decode(&parsedResume); err != nil {
 		SendResponse(w, models.Response{Message: "Error decoding response: " + err.Error(), Status: "Error"})
 		return
@@ -92,7 +100,8 @@ func (d *Env) UploadResume(w http.ResponseWriter, r *http.Request) {
 
 	var experienceNames []string
 	for _, exp := range parsedResume.Experience {
-		experienceNames = append(experienceNames, exp.Name)
+		e := exp.Organization + " as " + exp.Title
+		experienceNames = append(experienceNames, e)
 	}
 	experience := strings.Join(experienceNames, ", ")
 
