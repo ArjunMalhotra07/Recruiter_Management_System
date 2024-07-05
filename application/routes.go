@@ -36,7 +36,7 @@ func AppRoutes(env *handler.Env) *chi.Mux {
 func JobRoutes(router chi.Router, env *handler.Env) {
 	router.Get("/", env.GetAllJobs)
 	//! To be implemented
-	router.Get("/apply?job_id={job_id}", env.ApplyToJob)
+	router.Get("/apply", env.ApplyToJob)
 }
 func AdminRoutes(router chi.Router, env *handler.Env) {
 	router.Post("/job", env.PostJob)

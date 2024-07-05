@@ -1,9 +1,13 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
+	"os/exec"
+	"time"
 
 	"github.com/ArjunMalhotra07/Recruiter_Management_System/models"
+	"github.com/dgrijalva/jwt-go"
 )
 
 func (d *Env) GetAllJobs(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +35,62 @@ func (d *Env) GetAllJobs(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (env *Env) ApplyToJob(w http.ResponseWriter, r *http.Request) {
-	response := models.Response{Message: "Applied to a job", Status: "Success"}
+func (d *Env) ApplyToJob(w http.ResponseWriter, r *http.Request) {
+	claims := r.Context().Value("claims").(jwt.MapClaims)
+	if claims["is_admin"].(bool) {
+		SendResponse(w, models.Response{Message: "Only Applicant Users can apply to this job!", Status: "Error"})
+		return
+	}
+	uuid := claims["uuid"].(string)
+	jobID := r.URL.Query().Get("job_id") // Extract job_id from query parameters
+	if jobID == "" {
+		SendResponse(w, models.Response{Message: "job_id parameter is required", Status: "Error"})
+		return
+	}
+	//! Check if the job with jobID exists
+	var jobExists bool
+	err := d.Driver.QueryRow("SELECT EXISTS(SELECT 1 FROM job WHERE JobID = ?)", jobID).Scan(&jobExists)
+	if err != nil {
+		SendResponse(w, models.Response{Message: "Error checking job existence: " + err.Error(), Status: "Error"})
+		return
+	}
+	if !jobExists {
+		SendResponse(w, models.Response{Message: "Job does not exist", Status: "Error"})
+		return
+	}
+	//! Check if the user (UUID) has already applied to this job (jobID)
+	var hasApplied bool
+	err = d.Driver.QueryRow("SELECT EXISTS(SELECT * FROM job_application WHERE JobID = ? AND UserID = ?)", jobID, uuid).Scan(&hasApplied)
+	if err != nil {
+		SendResponse(w, models.Response{Message: "Error checking previous application: " + err.Error(), Status: "Error"})
+		return
+	}
+	if hasApplied {
+		SendResponse(w, models.Response{Message: "You have already applied to this job", Status: "Error"})
+		return
+	} else {
+		fmt.Println("false")
+	}
+	//! Generating new applicationID
+	applicationID, err := exec.Command("uuidgen").Output()
+	if err != nil {
+		response := models.Response{Message: err.Error(), Status: "Error"}
+		SendResponse(w, response)
+		return
+	}
+	_, err = d.Driver.Exec(`INSERT INTO 
+	job_application(ApplicationID, JobID,UserID,AppliedOn) 
+	VALUES (?,?,?,?)`,
+		applicationID,
+		jobID,
+		uuid,
+		time.Now(),
+	)
+	if err != nil {
+		response := models.Response{Message: err.Error(), Status: "Error"}
+		SendResponse(w, response)
+		return
+	}
+	response := models.Response{Message: "Successfully Applied!", Status: "Success"}
 	SendResponse(w, response)
 }
