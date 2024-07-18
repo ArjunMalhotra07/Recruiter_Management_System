@@ -15,7 +15,10 @@ type App struct {
 }
 
 func New(driver *sql.DB) *App {
-	env := &handler.Env{Driver: driver}
+	var env *handler.Env
+	var h = handler.Env{Driver: driver}
+	env = &h
+	//! Or -> env := &handler.Env{Driver: driver}
 	return &App{router: AppRoutes(env), driver: driver}
 }
 func (a *App) StartServer() error {

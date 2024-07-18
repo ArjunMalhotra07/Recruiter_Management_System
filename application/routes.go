@@ -54,3 +54,97 @@ func DefaultRoute(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
+
+/*
+! Gin Routing
+func main() {
+    r := gin.Default()
+    r.Use(gin.Logger())
+
+    r.GET("/", func(c *gin.Context) {
+        c.JSON(http.StatusOK, gin.H{"message": "pong🤣"})
+    })
+
+    auth := r.Group("/")
+    {
+        LoginRoutes(auth)
+    }
+
+    admin := r.Group("/admin")
+    admin.Use(JwtVerify(apigateway.Secret))
+    {
+        AdminRoutes(admin)
+    }
+
+    jobs := r.Group("/jobs")
+    jobs.Use(JwtVerify(apigateway.Secret))
+    {
+        JobRoutes(jobs)
+    }
+
+    r.POST("/uploadResume", JwtVerify(apigateway.Secret), env.UploadResume)
+    r.GET("/profiles", env.GetAllProfiles)
+
+    r.Run() // Listen and serve on 0.0.0.0:8080
+}
+
+func LoginRoutes(router *gin.RouterGroup) {
+    router.POST("/signup", env.SignUp)
+    router.POST("/login", env.LogIn)
+}
+
+func AdminRoutes(router *gin.RouterGroup) {
+    router.POST("/job", env.PostJob)
+    router.GET("/job/:job_id", env.GetJobDetails)
+    router.GET("/applicants", env.GetAllApplicants)
+    router.GET("/applicant/:applicant_id", env.GetApplicantData)
+}
+
+func JobRoutes(router *gin.RouterGroup) {
+    router.GET("/", env.GetAllJobs)
+    router.GET("/apply", env.ApplyToJob)
+}
+! Echo Routing
+
+func main() {
+    e := echo.New()
+    e.Use(middleware.Logger())
+
+    e.GET("/", func(c echo.Context) error {
+        return c.JSON(http.StatusOK, map[string]string{"message": "pong🤣"})
+    })
+
+    auth := e.Group("/")
+    LoginRoutes(auth)
+
+    admin := e.Group("/admin")
+    admin.Use(JwtVerify(apigateway.Secret))
+    AdminRoutes(admin)
+
+    jobs := e.Group("/jobs")
+    jobs.Use(JwtVerify(apigateway.Secret))
+    JobRoutes(jobs)
+
+    e.POST("/uploadResume", env.UploadResume, JwtVerify(apigateway.Secret))
+    e.GET("/profiles", env.GetAllProfiles)
+
+    e.Start(":8080") // Listen and serve on 0.0.0.0:8080
+}
+
+func LoginRoutes(router *echo.Group) {
+    router.POST("/signup", env.SignUp)
+    router.POST("/login", env.LogIn)
+}
+
+func AdminRoutes(router *echo.Group) {
+    router.POST("/job", env.PostJob)
+    router.GET("/job/:job_id", env.GetJobDetails)
+    router.GET("/applicants", env.GetAllApplicants)
+    router.GET("/applicant/:applicant_id", env.GetApplicantData)
+}
+
+func JobRoutes(router *echo.Group) {
+    router.GET("/", env.GetAllJobs)
+    router.GET("/apply", env.ApplyToJob)
+}
+*/
