@@ -27,8 +27,11 @@ func (a *App) StartServer() error {
 		Handler: a.router,
 	}
 	fmt.Println("Starting server")
-	//! Method 2 to Start Server
-	err := http.ListenAndServe(":8080", server.Handler)
+	//! Method 1 to Start Server
+	err := http.ListenAndServe(server.Addr, server.Handler)
+	/*
+		err := http.ListenAndServe(":8080", a.router)
+	*/
 	if err != nil {
 		return fmt.Errorf("error %s", err)
 	}

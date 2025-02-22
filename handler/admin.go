@@ -36,8 +36,8 @@ func (d *Env) PostJob(w http.ResponseWriter, r *http.Request) {
 		}
 		//! Insert into Jobs Table
 		_, err = d.Driver.Exec(`INSERT INTO 
-	Job(JobID, Title,Description,PostedOn,TotalApplications,CompanyName,Uuid) 
-	VALUES (?,?,?,?,?,?,?)`,
+		Job(JobID, Title,Description,PostedOn,TotalApplications,CompanyName,Uuid) 
+		VALUES (?,?,?,?,?,?,?)`,
 			newUUID,
 			job.Title,
 			job.Description,
